@@ -28,7 +28,7 @@ function module.detachCopilot()
             end)
         end,
         0.2, -- check interval
-        5    -- timeout seconds
+        10    -- timeout seconds
     )
 end
 
