@@ -4,7 +4,7 @@ local module = {}
 function module.arrange()
     
     local ipad = hs.screen.find(config.ipadName)
-    local mainScreen = hs.screen.mainScreen()
+    local mainScreen = hs.screen.primaryScreen()
     local monitor = hs.screen.find(config.monitorName)
 
     if not ipad then print("WARNING: iPad screen not found: " .. config.ipadName) end
@@ -15,29 +15,21 @@ function module.arrange()
 
         for _, win in pairs(chrome:allWindows()) do
             win:moveToScreen(monitor)
-            win:maximize()
+            win:setFullScreen(true)
         end
     end
-
 
     local code = hs.application.get(config.apps.code)
-    if code then
-        for _, win in pairs(code:allWindows()) do 
-            local title = win:title()
-
-            if string.find(title, "Chat") or string.find(title, "Copilot") then
-                if ipad then
-                    win:moveToScreen(ipad)
-                    win:maximize()
-                end
-            else
-
-                win:moveToScreen(mainScreen)
-                win:maximize()
-            end
+    if code and mainScreen then
+        for _, win in pairs(code:allWindows()) do
+            win:moveToScreen(mainScreen)
+            win:setFullScreen(true)
         end
+    end 
+    if ipad then
+        hs.alert.show("Arranged windows with iPad connected")
+    else
+        hs.alert.show("Arranged windows (iPad not connected)")
     end
-    hs.alert.show("Windows Arranged")
 end
-
 return module

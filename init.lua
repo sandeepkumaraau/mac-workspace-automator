@@ -16,8 +16,10 @@ hs.hotkey.bind({"cmd", "alt", "ctrl"}, "A", function()
 
     hs.timer.doAfter(2, function()
         system.launchApps()
-        -- Open Gemini URL specifically
+        
+        hs.urlevent.openURL("https://github.com/sandeepkumaraau")
         hs.urlevent.openURL("https://gemini.google.com")
+        
     end)
 
     hs.timer.doAfter(5, function()

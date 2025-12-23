@@ -1,7 +1,8 @@
 local config = {}
 
 
-config.ipadName = "iPad"
+config.ipadName = "Sidecar Display (AirPlay)"
+config.sidecarSpecifier = "iPad"
 config.monitorName = "GN01"
 
 
