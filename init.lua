@@ -4,7 +4,6 @@ local config = require("config")
 
 local display = require("modules.display")
 local system = require("modules.system")
-local windows = require("modules.windows")
 
 -- Hotkey: Cmd + Option + Ctrl + A
 hs.hotkey.bind({"cmd", "alt", "ctrl"}, "A", function()
@@ -22,16 +21,17 @@ hs.hotkey.bind({"cmd", "alt", "ctrl"}, "A", function()
         
     end)
 
+    hs.timer.doAfter(4, function()
+        system.fullscreenchrome()
+    end)
+
     hs.timer.doAfter(5, function()
         system.detachCopilot()
     end)
 
 
-   hs.timer.waitUntil(
-    function() return hs.screen.find(config.ipadName) ~= nil end,
-    function() windows.arrange() end,
-    0.5, 15 -- check every 0.5s, timeout 15s
-    )
+
+
 
 end)
 

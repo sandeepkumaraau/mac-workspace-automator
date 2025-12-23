@@ -26,9 +26,38 @@ function module.launchApps()
     hs.alert.show("Launched Apps")
 end
 
+function module.fullscreenchrome()
+    hs.timer.waitUntil(
+        function() return hs.application.get(config.apps.browser) ~= nil end,
+        function()
+            local chrome = hs.application.get(config.apps.browser)
+            if not chrome then return end
+            local windows = chrome:allWindows() or {}
 
--- Detach co-pilot in VS Code
+            for _, win in pairs(windows) do
+                win:setFullScreen(true)
+            end
+            hs.alert.show("Set Chrome to Fullscreen")
+        end,
+        0.5, -- check interval
+        10   -- timeout seconds
+    )
+end
+
+local function fullscreenVscode(win, screen)
+    if not win then return end
+    win:raise()
+    win:focus()
+    win:moveToScreen(screen)
+    win:setFullScreen(true)
+    hs.alert.show("Set VS Code to Fullscreen")
+end
+
+
 function module.detachCopilot()
+    local ipadScreen = findScreenByName(config.ipadName)
+    local mainScreen = hs.screen.primaryScreen()
+
     hs.timer.waitUntil(
         function() return hs.application.get(config.apps.code) ~= nil end,
         function()
@@ -37,7 +66,11 @@ function module.detachCopilot()
             local windows = VSCode:allWindows() or {}
 
             if #windows ~= 1 then
-                hs.alert.show("VS Code has multiple windows open; cannot detach Co-Pilot automatically.")
+                hs.timer.doAfter(3, function()
+                    if windows[1] and ipadScreen then fullscreenVscode(windows[1], ipadScreen) end
+                    if windows[2] then fullscreenVscode(windows[2], mainScreen) end
+                end)
+                hs.alert.show("VS Code has multiple windows open. Aborting detach.")
                 return
             end
 
@@ -59,17 +92,20 @@ function module.detachCopilot()
                     end
 
                     if newWin then
-                        local ipadScreen = findScreenByName(config.ipadName)
                         if not ipadScreen then
                             hs.alert.show("iPad screen not found: " .. tostring(config.ipadName))
                             return
                         end
-                        
                         newWin:raise()
                         newWin:focus()
                         newWin:moveToScreen(ipadScreen)
                         newWin:setFullScreen(true)
                         hs.alert.show("Moved Co-pilot window to iPad")
+
+                        hs.timer.doAfter(0.5, function()
+                            fullscreenVscode(win, mainScreen)
+                            hs.alert.show("Focused back to main VS Code window")
+                        end)
                     else
                         hs.alert.show("No additional window found for Co-Pilot")
                     end
