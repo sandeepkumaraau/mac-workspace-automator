@@ -64,34 +64,31 @@ function module.detachCopilot()
             local winId = win:id()
             VSCode:activate()
 
-            hs.timer.doAfter(2, function()
+            hs.timer.doAfter(0.8, function()
                 hs.eventtap.keyStroke({"control","command"}, "B") -- detach co-pilot shortcut
                 hs.alert.show("Detached Co-Pilot in VS Code")
 
-                hs.timer.doAfter(2, function()
-                    local newWin = nil
-                    for _, w in pairs(VSCode:allWindows() or {}) do
+                hs.timer.doAfter(0.8, function()
+                    local app2 = hs.application.get(config.apps.code)
+                    if not app2 then return end
+                    local newWin
+                    for _, w in pairs(app2:allWindows() or {}) do
                         if w:id() ~= winId then
                             newWin = w
                             break
                         end
                     end
 
-                    if newWin then
-                        if not ipadScreen then
-                            hs.alert.show("iPad screen not found: " .. tostring(config.ipadName))
-                            return
-                        end
+                    if newWin and ipadScreen then
+
                         fullscreen(newWin, ipadScreen)
                         hs.alert.show("Moved Co-pilot window to iPad")
-
-                        hs.timer.doAfter(0.5, function()
-                            fullscreen(win, mainScreen)
-                            hs.alert.show("Focused back to main VS Code window")
-                        end)
+                    
                     else
                         hs.alert.show("No additional window found for Co-Pilot")
                     end
+                    fullscreen(win, mainScreen)
+
                 end)
             end)
         end,
