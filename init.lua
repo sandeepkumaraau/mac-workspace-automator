@@ -12,7 +12,7 @@ hs.alert.show("Hammerspoon Automation Ready")
 
 -- Automation Sequence for coding setup
 -- Hotkey: Cmd + Option + Ctrl + C
-hs.hotkey.bind({"cmd", "opt", "ctrl"}, "C", function()
+hs.hotkey.bind({"cmd" , "ctrl"}, "C", function()
     
     hs.alert.show("Starting Coding Setup...")
 
@@ -29,7 +29,7 @@ hs.hotkey.bind({"cmd", "opt", "ctrl"}, "C", function()
         
     end)
 
-    hs.timer.doAfter(4, function()
+    hs.timer.doAfter(2, function()
         window.fullscreenchrome()
     end)
 
@@ -42,27 +42,25 @@ end)
 
 -- Automation Sequence for Study setup
 -- Hotkey: Cmd + Option + Ctrl + S
-hs.hotkey.bind({"cmd", "opt", "ctrl"}, "S", function()
+hs.hotkey.bind({"cmd" , "ctrl"}, "S", function()
 
     hs.alert.show("Starting Study Setup...")
 
-    system.enableDND()
+    system.enableGoodnotes()
 
     hs.timer.doAfter(1, function()
         system.launchChrome()
+        hs.urlevent.openURL("https://moodle.aau.at/login/index.php")
 
-        hs.urlevent.openURL("https://gemini.google.com")
+        window.fullscreenchrome()
+        window.openGeminiWindow()
         
     end)
 
-        hs.timer.doAfter(4, function()
-        window.fullscreenchrome()
+
+    hs.timer.doAfter(2, function()
+        window.moveGeminiToPrimary()
     end)
-
-    
-
-
-
 
 end)
 

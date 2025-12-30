@@ -8,6 +8,10 @@ function module.enableDND()
     hs.alert.show("Do Not Disturb Enabled")
 end
 
+function module.enableGoodnotes()
+    hs.execute("shortcuts run 'set notesapp'")
+    hs.alert.show("Goodnotes Setup Enabled")
+end
 
 
 -- Launch essential applications
@@ -18,7 +22,7 @@ function module.launchVScode()
 end
 
 function module.launchChrome()
-    hs.application.launchOrFocusByBundleID(config.apps.browser)
+    hs.application.launchOrFocusByBundleID(config.apps.chrome)
     hs.alert.show("Launched Chrome")
 end
 

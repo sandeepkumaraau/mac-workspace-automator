@@ -17,7 +17,6 @@ local function fullscreen(win, screen)
     win:focus()
     win:moveToScreen(screen)
     win:setFullScreen(true)
-    hs.alert.show("Set VS Code to Fullscreen")
 end
 
 
@@ -27,16 +26,78 @@ end
 
 function module.fullscreenchrome()
     local monitor = findScreenByName(config.monitorName)
+    if not monitor then
+        hs.alert.show("Monitor " .. config.monitorName .. " not found!")
+        return
+    end
+
+    local mainScreen = hs.screen.primaryScreen()
     hs.timer.waitUntil(
-        function() return hs.application.get(config.apps.browser) ~= nil end,
         function()
-            local chrome = hs.application.get(config.apps.browser)
-            local windows = chrome:allWindows() or {}
-            fullscreen(windows[1], monitor)
-            hs.alert.show("Set Chrome to Fullscreen")
-        end
+            local app = hs.application.get(config.apps.chrome)
+            return app and #(app:allWindows() or {}) > 0
+        end,
+        function()
+            local chrome = hs.application.get(config.apps.chrome)
+            local windows = chrome and chrome:allWindows() or {}
+            local win = windows[1]
+
+            if win then
+                fullscreen(win, monitor)
+            else
+                hs.alert.show("No Chrome window found!")
+            end
+        end,
+        0.5, -- check interval
+        10   -- timeout seconds
+
+
     )
 end
+
+
+function module.openGeminiWindow()
+    hs.osascript.applescript([[
+        tell application "Google Chrome"
+            make new window
+            tell front window
+                set URL of active tab to "https://gemini.google.com"
+            end tell
+        end tell
+    ]])
+end
+
+
+
+function module.moveGeminiToPrimary()
+    hs.timer.waitUntil(
+        function()
+            local app = hs.application.get(config.apps.chrome)
+            if not app then return false end
+            for _, w in ipairs(app:allWindows() or {}) do
+                local t = (w:title() or ""):lower()
+                if t:find("gemini") then return true end
+            end
+            return false
+        end,
+        function()
+            local app = hs.application.get(config.apps.chrome)
+            if not app then return end
+            for _, w in ipairs(app:allWindows() or {}) do
+                local t = (w:title() or ""):lower()
+                if t:find("gemini") then
+                    fullscreen(w, hs.screen.primaryScreen())
+                    hs.alert.show("Gemini to primary")
+                    return
+                end
+            end
+            hs.alert.show("No Gemini window found")
+        end,
+        0.5, 10
+    )
+end
+
+
 
 ------------------------------------------
 
