@@ -9,13 +9,22 @@ function module.enableDND()
 end
 
 
--- Launch apps
-function module.launchApps()
+
+-- Launch essential applications
+
+function module.launchVScode()
     hs.application.launchOrFocusByBundleID(config.apps.code)
-    hs.application.launchOrFocusByBundleID(config.apps.browser)
-    hs.alert.show("Launched Apps")
+    hs.alert.show("Launched VSCode")
 end
 
+function module.launchChrome()
+    hs.application.launchOrFocusByBundleID(config.apps.browser)
+    hs.alert.show("Launched Chrome")
+end
 
+function module.launchSafari()
+    hs.application.launchOrFocusByBundleID(config.apps.safari)
+    hs.alert.show("Launched Safari")
+end
 
 return module

@@ -12,7 +12,7 @@ hs.alert.show("Hammerspoon Automation Ready")
 
 -- Automation Sequence for coding setup
 -- Hotkey: Cmd + Option + Ctrl + C
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "C", function()
+hs.hotkey.bind({"cmd", "opt", "ctrl"}, "C", function()
     
     hs.alert.show("Starting Coding Setup...")
 
@@ -20,10 +20,12 @@ hs.hotkey.bind({"cmd", "alt", "ctrl"}, "C", function()
     system.enableDND()
 
     hs.timer.doAfter(2, function()
-        system.launchApps()
+        system.launchChrome()
         
         hs.urlevent.openURL("https://github.com/sandeepkumaraau")
         hs.urlevent.openURL("https://gemini.google.com")
+
+        system.launchVScode()
         
     end)
 
@@ -40,6 +42,28 @@ end)
 
 -- Automation Sequence for Study setup
 -- Hotkey: Cmd + Option + Ctrl + S
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "S", function()
+hs.hotkey.bind({"cmd", "opt", "ctrl"}, "S", function()
+
+    hs.alert.show("Starting Study Setup...")
+
+    system.enableDND()
+
+    hs.timer.doAfter(1, function()
+        system.launchChrome()
+
+        hs.urlevent.openURL("https://gemini.google.com")
+        
+    end)
+
+        hs.timer.doAfter(4, function()
+        window.fullscreenchrome()
+    end)
+
+    
+
+
+
+
+end)
 
 
