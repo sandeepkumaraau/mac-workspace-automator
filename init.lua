@@ -6,10 +6,15 @@ local display = require("modules.display")
 local system = require("modules.system")
 local window = require("modules.window")
 
--- Hotkey: Cmd + Option + Ctrl + A
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "A", function()
+
+hs.alert.show("Hammerspoon Automation Ready")
+
+
+-- Automation Sequence for coding setup
+-- Hotkey: Cmd + Option + Ctrl + C
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "C", function()
     
-    hs.alert.show("Starting Automation Sequence...")
+    hs.alert.show("Starting Coding Setup...")
 
     display.connectSidecar()
     system.enableDND()
@@ -32,4 +37,9 @@ hs.hotkey.bind({"cmd", "alt", "ctrl"}, "A", function()
 
 end)
 
-hs.alert.show("Hammerspoon Automation Ready")
+
+-- Automation Sequence for Study setup
+-- Hotkey: Cmd + Option + Ctrl + S
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "S", function()
+
+
