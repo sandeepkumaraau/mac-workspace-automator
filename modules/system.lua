@@ -31,4 +31,16 @@ function module.launchSafari()
     hs.alert.show("Launched Safari")
 end
 
+function module.launchOutlook()
+    hs.application.launchOrFocusByBundleID(config.apps.outlook)
+    hs.alert.show("Launched Outlook")
+end
+
+function module.launchMail()
+    hs.application.launchOrFocusByBundleID(config.apps.mail)
+    hs.alert.show("Launched Mail")
+end
+
+
+
 return module
