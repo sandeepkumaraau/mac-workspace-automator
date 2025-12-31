@@ -1,5 +1,6 @@
 local config = require("config")
 local module = {}
+hs.application.enableSpotlightForNameSearches(true)
 
 local function findScreenByName(name)
     if not name or name == "" then return nil end
@@ -12,11 +13,17 @@ local function findScreenByName(name)
 end
 
 local function fullscreen(win, screen)
-    if not win then return end
-    win:raise()
-    win:focus()
-    win:moveToScreen(screen)
-    win:setFullScreen(true)
+    if not screen then 
+       win:raise()
+       win:focus()
+       win:setFullScreen(true)
+       return
+    else
+       win:raise()
+       win:focus()
+       win:moveToScreen(screen)
+       win:setFullScreen(true)
+    end
 end
 
 
@@ -26,12 +33,8 @@ end
 
 function module.fullscreenchrome()
     local monitor = findScreenByName(config.monitorName)
-    if not monitor then
-        hs.alert.show("Monitor " .. config.monitorName .. " not found!")
-        return
-    end
-
     local mainScreen = hs.screen.primaryScreen()
+
     hs.timer.waitUntil(
         function()
             local app = hs.application.get(config.apps.chrome)
@@ -39,22 +42,22 @@ function module.fullscreenchrome()
         end,
         function()
             local chrome = hs.application.get(config.apps.chrome)
-            local windows = chrome and chrome:allWindows() or {}
-            local win = windows[1]
+            local windows = chrome:allWindows() or {}
 
-            if win then
-                fullscreen(win, monitor)
-            else
-                hs.alert.show("No Chrome window found!")
+            for _, w in ipairs(windows) do
+                if (w:title() or ""):lower():find("gemini") then
+                    fullscreen(w, mainScreen)
+                else
+                    fullscreen(w, monitor)
+                end
             end
         end,
         0.5, -- check interval
-        10   -- timeout seconds
+        4   -- timeout seconds
 
 
     )
 end
-
 
 function module.openGeminiWindow()
     hs.osascript.applescript([[
@@ -66,38 +69,6 @@ function module.openGeminiWindow()
         end tell
     ]])
 end
-
-
-
-function module.moveGeminiToPrimary()
-    hs.timer.waitUntil(
-        function()
-            local app = hs.application.get(config.apps.chrome)
-            if not app then return false end
-            for _, w in ipairs(app:allWindows() or {}) do
-                local t = (w:title() or ""):lower()
-                if t:find("gemini") then return true end
-            end
-            return false
-        end,
-        function()
-            local app = hs.application.get(config.apps.chrome)
-            if not app then return end
-            for _, w in ipairs(app:allWindows() or {}) do
-                local t = (w:title() or ""):lower()
-                if t:find("gemini") then
-                    fullscreen(w, hs.screen.primaryScreen())
-                    hs.alert.show("Gemini to primary")
-                    return
-                end
-            end
-            hs.alert.show("No Gemini window found")
-        end,
-        0.5, 10
-    )
-end
-
-
 
 ------------------------------------------
 
@@ -154,8 +125,104 @@ function module.detachCopilot()
             end)
         end,
         0.5, -- check interval
-        10   -- timeout seconds
+        3   -- timeout seconds
+    )
+end
+-----------------------------------------
+
+function module.fullscreenOutlook_Mail()
+    local mainScreen = hs.screen.primaryScreen()
+
+    hs.timer.waitUntil(
+        function()
+            local app1 = hs.application.get(config.apps.outlook)
+            local app2 = hs.application.get(config.apps.mail)
+            return (app1 and #(app1:allWindows() or {}) > 0) and (app2 and #(app2:allWindows() or {}) > 0)
+        end,
+        function()
+            local outlook = hs.application.get(config.apps.outlook)
+            local mail = hs.application.get(config.apps.mail)
+
+            hs.alert.show("Fullscreening Outlook and Mail apps")
+
+            for _, w in ipairs(outlook:allWindows() or {}) do
+                fullscreen(w, mainScreen)
+                hs.alert.show("Fullscreened Outlook")
+            end
+
+            for _, w in ipairs(mail:allWindows() or {}) do
+                fullscreen(w, mainScreen)
+                hs.alert.show("Fullscreened Mail")
+            end
+        end,
+        0.5, -- check interval
+        5   -- timeout seconds
     )
 end
 
+-- Helper to find button by text
+local function findElementWithTitle(element, targetTitle)
+    if not element then return nil end
+    if element:attributeValue("AXTitle") == targetTitle or 
+       element:attributeValue("AXValue") == targetTitle or 
+       element:attributeValue("AXDescription") == targetTitle then
+        return element
+    end
+    local children = element:attributeValue("AXChildren")
+    if children then
+        for _, child in ipairs(children) do
+            local found = findElementWithTitle(child, targetTitle)
+            if found then return found end
+        end
+    end
+    return nil
+end
+
+function module.settingsPane()
+    -- 1. Run the AppleScript that you confirmed works
+    hs.osascript.applescript([[
+        set theExtensionID to "com.apple.ControlCenter-Settings.extension"
+        tell application "System Settings" to activate
+        open location "x-apple.systempreferences:" & theExtensionID
+    ]])
+
+    local app = hs.application.get("System Settings")
+    
+    -- Wait briefly for the window to render
+    hs.timer.doAfter(0.5, function()
+        if not app then app = hs.application.get("System Settings") end
+        
+        local win = app:mainWindow()
+        if win then
+            local axWin = hs.axuielement.windowElement(win)
+
+            -- 2. Find "Never". If not found, find "Always".
+            local targetButton = findElementWithTitle(axWin, "Never")
+            if not targetButton then
+                targetButton = findElementWithTitle(axWin, "Always")
+            end
+
+            -- 3. Click and Toggle
+            if targetButton then
+                -- Click to OPEN the menu
+                targetButton:performAction("AXPress")
+                hs.timer.usleep(200000) -- Wait for menu to pop up
+
+                -- Type the key to switch options
+                if targetButton:attributeValue("AXValue") == "Never" then
+                    hs.eventtap.keyStrokes("a") -- Switch to "Always"
+                    hs.alert.show("Switched to Always")
+                else
+                    hs.eventtap.keyStrokes("n") -- Switch to "Never"
+                    hs.alert.show("Switched to Never")
+                end
+                
+                hs.timer.usleep(200000)
+                hs.eventtap.keyStroke({}, "return") -- Confirm selection
+            else
+                hs.alert.show("Error: Button not found. Is the window visible?")
+            end
+        end
+    end)
+end
 return module
