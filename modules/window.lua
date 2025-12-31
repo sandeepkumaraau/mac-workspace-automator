@@ -206,7 +206,7 @@ function module.settingsPane()
             if targetButton then
                 -- Click to OPEN the menu
                 targetButton:performAction("AXPress")
-                hs.timer.usleep(200000) -- Wait for menu to pop up
+                hs.timer.usleep(20000) -- Wait for menu to pop up
 
                 -- Type the key to switch options
                 if targetButton:attributeValue("AXValue") == "Never" then
@@ -217,12 +217,19 @@ function module.settingsPane()
                     hs.alert.show("Switched to Never")
                 end
                 
-                hs.timer.usleep(200000)
+                hs.timer.usleep(20000)
                 hs.eventtap.keyStroke({}, "return") -- Confirm selection
             else
                 hs.alert.show("Error: Button not found. Is the window visible?")
             end
+
+            hs.timer.doAfter(1, function()
+                if win then win:close() end 
+                local app = hs.application.get("System Settings")
+                if app then app:kill() end
+            end)
         end
+
     end)
 end
 return module
