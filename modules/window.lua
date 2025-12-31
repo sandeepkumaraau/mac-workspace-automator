@@ -189,7 +189,7 @@ function module.settingsPane()
     local app = hs.application.get("System Settings")
     
     -- Wait briefly for the window to render
-    hs.timer.doAfter(0.5, function()
+    hs.timer.doAfter(1, function()
         if not app then app = hs.application.get("System Settings") end
         
         local win = app:mainWindow()
