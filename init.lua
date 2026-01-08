@@ -136,11 +136,25 @@ end)
 
 
 -- Binds the script to "Control + Command + M"
+-- Bind key to toggel menu bar settings pane
 hs.hotkey.bind({"ctrl", "cmd"}, "M", function()
 
     window.settingsPane()
 
 end)
+
+-- Binds the script to "Control + Command + I"
+-- Bind key to toggel ipad sidecar
+hs.hotkey.bind({"ctrl", "cmd"}, "I", function()
+    local ipad = hs.screen.find(config.ipadName)
+    if ipad then
+        display.disconnectSidecar()
+    else
+        display.connectSidecar()
+    end
+end)
+
+
 
 
 
